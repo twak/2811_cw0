@@ -3,7 +3,6 @@
 
 #include "blocks.h"
 #include "location.h"
-#include "placeable.h"
 #include "tom.h"
 
 using namespace std;
@@ -22,22 +21,24 @@ void Location::remove(Thing *t)
 
 char Location::show() {
 
-    int pickUp = 0, blocking = 0, tom = 0;
+    int junk = 0, blocking = 0, tom = 0;
 
     // count properties of things at this location
-    for (Thing * t : things) {
+    for (Thing* t : things)
+    {
         if (dynamic_cast<Blocks*>(t) ) // is t subclass of Blocks?
             blocking++;
-        if (dynamic_cast<Placeable*>(t)) // is t subclass of Pickable?
-            pickUp++;
-        if (dynamic_cast<Tom*> (t) != NULL )
+        else if (dynamic_cast<Tom*> (t) != NULL ) // is t Tom?
             tom++;
+        else
+            junk++; // otherwise just junk
     }
 
     // return a character based on the properties
     if (blocking) // remember that
         return 'X';
-    else if (pickUp > 0) {
+    else if (junk > 0)
+    {
         if (tom)
             return 'L';
         else
@@ -47,7 +48,6 @@ char Location::show() {
         return '|';
     else
         return '.';
-
 }
 
 bool Location::isBlocking() // does this location block tom's travels?

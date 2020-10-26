@@ -14,10 +14,19 @@ class Tom : public Thing
 public:
     Tom(){}
     ~Tom(){}
-    string getName() {return "tom";}
+    string getName()
+    {
+        return "tom";
+    }
     void setLocation(Cave* c, int x, int y);
-    int getX() {return location[0];}
-    int getY() {return location[1];}
+    int getX()
+    {
+        return location[0];
+    }
+    int getY()
+    {
+        return location[1];
+    }
 private:
     int location[2] = {-1,-1}; // fixed length array, so we can allocate automatically...
                                // ...note invalid location (-1,-1) before setLocation call.

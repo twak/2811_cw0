@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "cave.h"
+#include "rock.h"
 #include "test.cpp"
 
 using namespace std;

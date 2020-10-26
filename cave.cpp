@@ -15,7 +15,7 @@ using namespace std;
 
 Cave::Cave(int w, int h) : width(w), height(h) // width and height of the cave
 {
-    if (width != 8 || height != 8)
+    if (width != 8 || height != 8) // be sure to update Cave::show() if you remove this.
         throw new logic_error("fixme: Cave needs to be fixed for non-standard sizes.");
 
     if ( width < 5 || height < 5)
@@ -23,7 +23,8 @@ Cave::Cave(int w, int h) : width(w), height(h) // width and height of the cave
 
     map = new Location**[8];
 
-    for (int x = 0; x < 8; x++) {
+    for (int x = 0; x < 8; x++)
+    {
         Location** column = new Location*[8];
         map[x] = column;
         for (int y = 0; y < 8; y++)
@@ -31,12 +32,10 @@ Cave::Cave(int w, int h) : width(w), height(h) // width and height of the cave
     }
 
     // create some rocks
-    for (int x = 0; x < 8; x++) {
+    for (int x = 0; x < 8; x++)
         for (int y = 0; y < 8; y++)
-            if (
-                    (x == 0 || y == 0 || x == 7 || y == 7) )
+            if ( x == 0 || y == 0 || x == 7 || y == 7 )
                  map[x][y] -> add( new Rock() );
-    }
 
     tom = new Tom();
     // add tom to the middle of the map
@@ -45,7 +44,8 @@ Cave::Cave(int w, int h) : width(w), height(h) // width and height of the cave
 
 Cave::~Cave()
 {
-    delete (map[0][0]); // fixme: I don't think this deletes all Locations and arrays declared in the constructor
+    delete (map[0][0]); // fixme: I don't think this deletes all Locations and arrays declared in the constructor...
+    delete[] map; // fixme: ...neither does this.
 }
 
 void Cave::command (string userCommand)
@@ -62,7 +62,8 @@ void Cave::show()
 {
     vector<Thing*>* thingsWithTom = map[tom -> getX()][tom -> getY()] -> getThings();
 
-    for (int y = 0; y < 8; y++) { // for all rows
+    for (int y = 0; y < 8; y++)
+    { // for all rows
         for (int x = 0; x < 8; x++) // for all columns
             cout << map[x][y] -> show(); // output whatever we find there
 

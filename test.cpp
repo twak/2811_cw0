@@ -11,8 +11,8 @@
 #include <fstream>
 #include <stdexcept>
 #include <sstream>
-#include<iostream>
-#include<string>
+#include <iostream>
+#include <string>
 #include <dirent.h> // this might be tricky, but mostly there for gnu compilers.
 
 #include "cave.h"
@@ -20,13 +20,12 @@
 #include "location.h"
 #include "mushroom.h"
 
-
 using namespace std;
 
 int Location::count;
 int Thing::count;
 
-int test1()
+int task1()
 {
 
     Cave c(8,8);
@@ -58,14 +57,15 @@ int test1()
     return (goodA ? 1 : 0) + (goodB ? 1 : 0);
 }
 
-int test2()
+int task2()
 {
     bool goodA = true, goodB = true;
 
-    try {
-
+    try
+    {
         for (int i = 5; i < 20; i+=2)
-            for (int j = 5; j < 27; j+=3) {
+            for (int j = 5; j < 27; j+=3)
+            {
                 Cave c(i,j);
 
                 goodA &= c.getWidth() == i;
@@ -88,7 +88,7 @@ int test2()
     return (goodA ? 1 : 0) + (goodB ? 1 : 0);
 }
 
-int test3()
+int task3()
 {
 
     Location::count = 0; // reset the counters in location and thing
@@ -116,7 +116,7 @@ void test4CheckPointers(Cave *a, Cave &b, bool& goodA)
     goodA &= b.getMap()[0][0]->getThings()->at(0) != a -> getMap()[0][0]->getThings()->at(0); // has the Rock been copied
 }
 
-int test4() {
+int task4() {
 
     bool goodA = true, goodB = true;
 
@@ -143,7 +143,8 @@ bool hasCoin (Cave &c, int x, int y) {
     return false;
 }
 
-bool hasMushroom (Cave &c, int x, int y) {
+bool hasMushroom (Cave &c, int x, int y)
+{
 
     for (auto t : *c.getMap()[x][y]->getThings())
         if ( dynamic_cast<Mushroom*>(t) )
@@ -152,7 +153,8 @@ bool hasMushroom (Cave &c, int x, int y) {
     return false;
 }
 
-int test5() {
+int task5()
+{
 
     bool goodA = true, goodB = true;
 
@@ -198,7 +200,7 @@ int countBombs(Cave *c)
     return count;
 }
 
-int test6()
+int task6()
 {
 
     bool goodA = true, goodB = true, goodC = true;
@@ -211,7 +213,8 @@ int test6()
     const int bombCount = 8;
     int bombs[bombCount][2] = {{1,1},{2,2},{1,7},{6,6},{5,5},{6,5},{5,6},{7,5}};
 
-    for (int x = 0; x < bombCount; x++) {
+    for (int x = 0; x < bombCount; x++)
+    {
         c.getTom()->setLocation(&c,bombs[x][0],bombs[x][1]);
         c.command("place bomb");
     }
@@ -248,7 +251,8 @@ bool endsWith(string const & value, string const & ending)
     return equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
-bool isEmpty(const string& file)  { // https://stackoverflow.com/questions/2424138/portable-way-to-get-file-size-in-c-c
+bool isEmpty(const string& file) // https://stackoverflow.com/questions/2424138/portable-way-to-get-file-size-in-c-c
+{
     ifstream ifile(file);
     ifile.seekg(0, ios_base::end);
     return ifile.tellg() == 0;
@@ -265,13 +269,16 @@ void test()
     stringstream buffer;
     string username = "";
 
-    if (folder.length() > 0) {
+    if (folder.length() > 0)
+    {
         cout << endl <<"Enter leeds username (sc19xxx):";
         getline(cin, username);
         username += ".patch";
 
-        if (auto dir = opendir(folder.c_str())) {
-            while (auto f = readdir(dir)) {
+        if (auto dir = opendir(folder.c_str()))
+        {
+            while (auto f = readdir(dir))
+            {
                 if (!f->d_name || f->d_name[0] == '.')
                     continue;
 
@@ -281,7 +288,8 @@ void test()
 
                     string fileName = folder+"/"+name;
 
-                    if (isEmpty(fileName)) {
+                    if (isEmpty(fileName))
+                    {
                         cout <<"...warning - empty file, please remove" << endl;
                         continue;
                     }
@@ -295,7 +303,8 @@ void test()
             }
             closedir(dir);
         }
-        else {
+        else
+        {
             cout <<"folder not found: " << folder << endl;
             return;
         }
@@ -303,17 +312,18 @@ void test()
 
     stringstream testResults;
 
-    testResults << "test results" << endl;
-    testResults << "1. " << test1() << endl;
-    testResults << "2. " << test2() << endl;
-    testResults << "3. " << test3() << endl;
-    testResults << "4. " << test4() << endl;
-    testResults << "5. " << test5() << endl;
-    testResults << "6. " << test6() << endl;
+    testResults << "task results:" << endl;
+    testResults << "1. " << task1() << endl;
+    testResults << "2. " << task2() << endl;
+    testResults << "3. " << task3() << endl;
+    testResults << "4. " << task4() << endl;
+    testResults << "5. " << task5() << endl;
+    testResults << "6. " << task6() << endl;
 
     cout << testResults.str();
 
-    if (folder.length() > 0) {
+    if (folder.length() > 0)
+    {
         ofstream outfile;
         outfile.open(folder+"/"+username, ios::out | ios::trunc );
         outfile << "******" << username << "******\n";

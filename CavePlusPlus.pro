@@ -7,6 +7,8 @@ CONFIG += c++11 console
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+        move.cpp \
+        place.cpp \
         test.cpp \
         tom.cpp \
         cave.cpp \
@@ -27,7 +29,6 @@ HEADERS += \
     move.h \
     mushroom.h \
     place.h \
-    placeable.h \
     rock.h \
     thing.h \
     tom.h

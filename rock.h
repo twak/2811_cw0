@@ -11,7 +11,10 @@ class Rock: public Thing, public Blocks
 public:
     Rock(){};
     ~Rock(){};
-    string getName() {return "rock";}
+    string getName()
+    {
+        return "rock";
+    }
 };
 
 #endif // ROCK_H

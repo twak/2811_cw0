@@ -13,8 +13,8 @@ class Command {
 public:
     Command(string triggerWord) : trigger(triggerWord) {}
 
-    virtual bool triggersOn (string userCommand) {
-
+    virtual bool triggersOn (string userCommand)
+    {
         string userTrigger = userCommand;
         int index = userCommand.find(' ');
         if (index > 0)
