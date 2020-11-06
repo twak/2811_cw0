@@ -21,9 +21,11 @@ int main(int argc, char** argv)
     cerr.setstate(ios_base::failbit);
     cout.setstate(ios_base::failbit);
 
-    std::cout.clear();
-      
-    cout << runTest(stoi(argv[1])) << endl;
+    string out = runTest(stoi(argv[1]));
+
+    cout.clear();
+    
+    cout << out << endl;
     
     return 0;
 }

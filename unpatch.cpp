@@ -111,7 +111,7 @@ bool endsWith2(string const & value, string const & ending)
 }
 
 
-string* unpatch (const string& dir, const string& outdir) {
+string unpatch (const string& dir, const string& username, const string& outdir) {
 
     std::ifstream t(dir);
     std::stringstream buffer;
@@ -123,10 +123,10 @@ string* unpatch (const string& dir, const string& outdir) {
     fileStr.erase(std::remove(fileStr.begin(), fileStr.end(), '\277'), fileStr.end());
 
 
-    string* username = new string ( fileStr.substr(6, fileStr.find(".patch***")-6) );
-    cout << *username << endl;
+//    string* username = new string ( fileStr.substr(6, fileStr.find(".patch***")-6) );
+    cout << username << endl;
 
-    mkdir( string ( outdir+"/"+*username ).c_str(), 0777 );
+    mkdir( string ( outdir+"/"+username ).c_str(), 0777 );
 
     std::regex rgx("~~~~~~([a-zA-Z0-9\\.]+?)~~~~~~");
 
@@ -155,7 +155,7 @@ string* unpatch (const string& dir, const string& outdir) {
 //            cout << m.position() << " " << m.length() << endl;
 
             outfile = new ofstream();
-            outfile -> open( outdir+"/"+*username+"/"+filename, ios::out | ios::trunc );
+            outfile -> open( outdir+"/"+username+"/"+filename, ios::out | ios::trunc );
 
 //            if (endsWith2 ( filename, ".cpp") || endsWith2 ( filename, ".h")) {
 //                *outfile << "/** unpatched file from " << *username << " **/\n";
@@ -170,11 +170,9 @@ string* unpatch (const string& dir, const string& outdir) {
     }
 
     outfile = new ofstream();
-    outfile -> open( outdir+"/"+*username+"/"+*username+".patch", ios::out | ios::trunc );
+    outfile -> open( outdir+"/"+username+"/"+username+".patch", ios::out | ios::trunc );
     *outfile << fileStr;
     outfile -> close();
-
-    return username;
 }
 
 bool build (const string& dir, const string& thisFile, ofstream& results) {
@@ -241,9 +239,10 @@ void test (string& dir, ofstream& results) {
 void unpatchAll()
 {
 
-//    string dir = "/home/twak/Downloads/cw1_submissions/gradebook_202021_32871_COMP2811_Coursework2013a20Cave20Plus20Plus_2020-10-28-18-38-24"; // where are the student's patch files? (all in one directory).
-    const string dir = "/home/twak/Downloads/cw1_test"; // where are the student's patch files? (all in one directory).
+    string dir = "/home/twak/Downloads/cw1_submissions/gradebook_202021_32871_COMP2811_Coursework2013a20Cave20Plus20Plus_2020-10-28-18-38-24"; // where are the student's patch files? (all in one directory).
+//    const string dir = "/home/twak/Downloads/cw1_test"; // where are the student's patch files? (all in one directory).
     const string outdir = "/home/twak/Downloads/out"; // where should the student's files be executed
+    const std::regex usrReg("Plus\\_([0-9a-z]+)\\_attempt");
 
     if (auto submissionFolder = opendir(dir.c_str())) {
         while (auto f = readdir(submissionFolder)) {
@@ -252,15 +251,21 @@ void unpatchAll()
                 continue;
 
             string name = string (f->d_name);
+
+            string username = name;
+            smatch m;
+
+            if (regex_search(name, m, usrReg))
+                username = m[1].str();
+
             if (endsWith2(name, ".patch")) {
 
-                cout << "*** starting unpatch" + name << endl;
-                string *username = unpatch(dir+"/"+name, outdir);
-                cout << "*** finished unpatch " << *username << endl;
+                cout << "*** starting unpatch " + username << endl;
+                unpatch(dir+"/"+name, username, outdir);
+                cout << "*** finished unpatch " << username << endl;
             }
          }
       }
-
 }
 
 void testAll()
@@ -298,6 +303,6 @@ void testAll()
 int main(int argc, char** argv)
 {
 //    unpatchAll(); // extract all the patch files
-                  // (add any student's submissions who didn't use the patch format here)
+                   // (add any student's submissions who didn't use the patch format here)
     testAll();    // build and test all files
 }
