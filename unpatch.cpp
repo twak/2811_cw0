@@ -19,21 +19,56 @@
 
 using namespace std;
 
+class rezult {
+public:
+    std::string output;
+    int code;
+};
 
-std::string exec(string in) { //https://stackoverflow.com/questions/478898/how-do-i-execute-a-command-and-get-the-output-of-the-command-within-c-using-po
+rezult * exec(string in) { //https://stackoverflow.com/questions/478898/how-do-i-execute-a-command-and-get-the-output-of-the-command-within-c-using-po
+
+    rezult* r = new rezult;
+
     const char* cmd = in.c_str();
-    std::array<char, 128> buffer;
-    std::string result;
-    FILE* file = popen(cmd, "r");
-    std::unique_ptr<FILE, decltype(&pclose)> pipe(file, pclose);
-//    std::unique_ptr<FILE> pipe(file);
-    if (!pipe) {
-        throw std::runtime_error("popen() failed!");
+    char buffer[128];
+    std::string result = "";
+    FILE* pipe = popen(cmd, "r");
+    if (!pipe) throw std::runtime_error("popen() failed!");
+    try {
+        while (fgets(buffer, sizeof buffer, pipe) != NULL) {
+            result += buffer;
+        }
+    } catch (...) {
+        r->code = pclose(pipe);
+        r->output = result;
+        throw;
     }
 
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-        result += buffer.data();
-    }
+    r->code = pclose(pipe);
+    r->output = result;
+
+    return r;
+
+
+//    std::array<char, 128> buffer;
+//    std::string result;
+//    FILE* file = popen(cmd, "r");
+//    std::unique_ptr<FILE, decltype(&pclose)> pipe(file, pclose);
+//    std::unique_ptr<FILE> pipe(file);
+
+//    if (!pipe) {
+//        throw std::runtime_error("popen() failed!");
+//    }
+
+//    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+//        result += buffer.data();
+//    }
+
+//    int ret = pclose(file);
+//    if(WIFEXITED(ret))
+//      printf("%d\n", WEXITSTATUS(ret));
+
+//    cout << rc/8 << endl;
 
 //    pipe.get()->
 //    int exitStatus = WEXITSTATUS(pclose(file));
@@ -41,7 +76,7 @@ std::string exec(string in) { //https://stackoverflow.com/questions/478898/how-d
 //        return to_string(exitStatus > 0 ? -exitStatus : exitStatus);
 
 
-    return result;
+//    return result;
 }
 
 void readClaimed (string& dir, string& username, ofstream& csv) {
@@ -142,30 +177,64 @@ string* unpatch (const string& dir, const string& outdir) {
     return username;
 }
 
-void build (const string& dir, const string& thisFile, ofstream& results) {
+bool build (const string& dir, const string& thisFile, ofstream& results) {
 
     // copy files that should not be changed
     exec ("cp " + thisFile+"/grade_files/* " + dir );
 
     // build
-    cout << exec("qmake -o "+dir+"/Makefile "+dir+"/CavePlusPlus.pro" );
+    cout << exec("qmake -o "+dir+"/Makefile "+dir+"/CavePlusPlus.pro" )->output;
     cout << endl;
-    cout << exec("make -C "+dir );
+    rezult* br = exec("make -C "+dir );
+    cout << br->output;
     cout << endl;
+
+    if (br->code) {
+        cout << " ** build failure " << br->code << endl;
+        results << "0,build failed,0,build failed,0,build failed,0,build failed,0,build failed,0,build failed,";
+        return false;
+    }
+    else
+        return true;
+
+
 }
 
 void test (string& dir, ofstream& results) {
-    for (int i = 1; i <= 6; i++) {
 
-        string res = exec( (dir+"/CavePlusPlus "+ to_string(i) ).c_str());
+    const int tries = 5; // number of crashes shown
+    for (int i = 1; i <= 6; i++) { // 6 questions
 
-        if (res[0]== '\0')
-            results << "-," << ",";
-        else {
-            results << res[0] << ", " << res.substr(1, res.size()-2) << ",";
+        int bestScore = 0;
+        int crashes = 0;
+        string bestString;
+
+        for (int c = 0; c< tries; c++) {
+            rezult* res = exec( (dir+"/CavePlusPlus "+ to_string(i) ).c_str());
+
+            if (res->output[0] != '\0' && res->code == 0) {
+                int score = res->output[0] - '0';
+                bestScore = score;
+                bestString = res->output.substr(1, res->output.size()-2) ;
+            }
+
+            if (res -> code != 0)
+                crashes++;
+
+            delete res;
         }
 
-        results ;
+        if (crashes !=0) {
+            bestScore = 0;
+            if (crashes == tries)
+                bestString = " crashed everytime :(";
+            else
+                bestString = " crashed sometimes ("+to_string(crashes)+") :/";
+        }
+
+        results << bestScore << "," << bestString << ",";
+        cout << "awarded " << i <<"/ " << bestScore << "  comments: " << bestString << endl;
+
     }
 }
 
@@ -214,8 +283,8 @@ void testAll()
             cout << "*** starting test " << username << endl;
 
             readClaimed(userDir, username, resultsfile);
-            build(userDir, thisfile, resultsfile);
-            test(userDir, resultsfile);
+            if (build(userDir, thisfile, resultsfile))
+                test(userDir, resultsfile);
 
             resultsfile << endl;
 

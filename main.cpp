@@ -12,7 +12,7 @@
 #include <iostream>
 
 #include "cave.h"
-#include "test.cpp"
+#include "grade_files/test.cpp"
 
 using namespace std;
 

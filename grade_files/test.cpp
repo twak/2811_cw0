@@ -174,7 +174,7 @@ string test3()
     goodA &= Location::count == 0;
     goodA &= Thing::count == 0;
 
-    string out = to_string ( (goodA ? 2 : 0)  + (goodB ? 2 : 0) );
+    string out = to_string ( (goodA ? 1 : 0)  + (goodB ? 1 : 0) );
 
     if (!goodA) {
         out += " Location/thing count not 0.";
@@ -321,14 +321,14 @@ int countBombs(Cave *c)
 string test6()
 {
 
-    bool goodA = true, goodB = true, goodC = true;
+    bool goodA = true, goodB = true, goodC = true, goodD = true, goodE = true;
 
     Cave c(8,8);
 
     goodA &= countBombs(&c) == 0;
 
-    const int bombCount = 8;
-    int bombs[bombCount][2] = {{1,1},{2,2},{1,7},{6,6},{5,5},{6,5},{5,6},{7,5}};
+    const int bombCount = 9;
+    int bombs[bombCount][2] = {{1,1},{2,2},{4,1},{1,6},{1,5},{2,5},{2,6},{2,7},{0,7}};
 
     for (int x = 0; x < bombCount; x++) {
         c.getTom()->setLocation(&c,bombs[x][0],bombs[x][1]);
@@ -337,47 +337,55 @@ string test6()
 
     goodA &= countBombs(&c) == bombCount;
 
-    c.getTom()->setLocation(&c,5,5);
+    c.getTom()->setLocation(&c,1,4);
     c.command("place mushroom");
-    c.getTom()->setLocation(&c,4,5);
-    c.command("place mushroom");
+    c.getTom()->setLocation(&c,1,5);
+    c.command("place coin");
 
     c.getTom()->setLocation(&c,1,2);
+
     c.command("explode");
 
-    goodB &= countBombs(&c) == 6;
+    int lastBombCount = countBombs(&c);
+    goodB &= lastBombCount == 7;
 
-    c.getTom()->setLocation(&c,5,5);
+    c.getTom()->setLocation(&c,1,5);
     c.command("explode");
-    goodB &= countBombs(&c) == 1;
+    goodE &= (countBombs(&c) ==  2 || countBombs(&c) == lastBombCount - 5);
 
     bool cA = true, cB = true;
 
-    cA &= !c.getMap()[7][5]->isBlocking(); // a bomb inside the rock should destroy the rock
-    cA &=  c.getMap()[7][6]->isBlocking(); // other rocks remain untouched
+    cA &= !c.getMap()[2][7]->isBlocking(); // a bomb inside the rock should destroy the rock
+    cA &=  c.getMap()[1][7]->isBlocking(); // other rocks remain untouched
 
-    goodC &= cA;
+    goodD &= cA;
 
-    cB &= !hasMushroom (c, 5,5); // mushroom should be destroyed
-    cB &=  hasMushroom (c, 4,5); // mushroom should not explode
+    cB &=  hasMushroom ( c, 1, 4 ); // mushroom should not be destroyed
+    cB &= !hasCoin( c, 1, 5 );    // coin should be destroyed
 
     goodC &= cB;
 
     c.command("place bomb");
 
-    string out = to_string ( (goodA ? 1 : 0) + (goodB ? 3 : 0) + (goodC ? 1 : 0) );
+    int score = (goodA ? 1 : 0) + (goodD ? 1 : 0) + (goodB ? 1 : 0) +(goodE ? 1 : 0) + (goodC ? 1 : 0);
+    string out = to_string ( score );
 
     if (!goodA)
         out += " failed to place bombs.";
 
-    if (!goodB)
-        out += " failed to detonate correct number of bombs.";
+    if (score > 0) {
+        if (!goodB)
+            out += " failed to detonate correct number of bombs for first explosion.";
 
-    if (!cA)
-        out += " bombs failed to interact with rocks correctly.";
+        if (!goodE)
+            out += " failed to detonate correct number of bombs for second explosion.";
 
-    if (!cB)
-        out += " bombs failed to interact with mushroom correctly.";
+        if (!cA)
+            out += " bombs failed to interact with rocks correctly.";
+
+        if (!cB)
+            out += " bombs failed to interact with mushroom/coin correctly.";
+    }
 
     return out;
 }
