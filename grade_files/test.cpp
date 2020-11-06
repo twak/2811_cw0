@@ -174,7 +174,7 @@ string test3()
     goodA &= Location::count == 0;
     goodA &= Thing::count == 0;
 
-    string out = to_string ( (goodA ? 1 : 0)  + (goodB ? 1 : 0) );
+    string out = to_string ( (goodA ? 2 : 0)  + (goodB ? 2 : 0) );
 
     if (!goodA) {
         out += " Location/thing count not 0.";

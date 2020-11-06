@@ -20,94 +20,53 @@
 #include "location.h"
 #include "mushroom.h"
 
+#include "test.h"
+
 using namespace std;
 
 int Location::count;
 int Thing::count;
 
-string test1()
+int test1()
 {
 
     Cave c(8,8);
-    c.getTom()->setLocation(&c, 4, 6);
+    c.getTom()->setLocation(&c, 5, 5);
 
     bool goodA = true;
 
     // let's walk in a circle and check we get the results we expect
-    c.command("move north");
-    goodA &= (c.getTom()->getY() == 5);
-
     c.command("move west");
-    goodA &= (c.getTom()->getX() == 3);
-
-    c.command("move north");
-    goodA &= (c.getTom()->getY() == 4);
-
-    c.command("move east");
     goodA &= (c.getTom()->getX() == 4);
 
     c.command("move north");
-    goodA &= (c.getTom()->getY() == 3);
+    goodA &= (c.getTom()->getY() == 4);
 
     c.command("move east");
     goodA &= (c.getTom()->getX() == 5);
 
     c.command("move south");
-    goodA &= (c.getTom()->getY() == 4);
-
-    c.command("move east");
-    goodA &= (c.getTom()->getX() == 6);
-
-    c.command("move south");
     goodA &= (c.getTom()->getY() == 5);
-
-    c.command("move west");
-    goodA &= (c.getTom()->getX() == 5);
-
-    c.command("move north");
-    goodA &= (c.getTom()->getY() == 4);
-
-    c.command("move west");
-    goodA &= (c.getTom()->getX() == 4);
-
-
-    bool goodB = true;
-
-    // walk into wall to south
-    for (int i = 0; i < 11; i++)
-        c.command("move south");
-
-    goodB &= (c.getTom()->getX() == 4);
-    goodB &= (c.getTom()->getY() == 6);
 
     // walk into wall to east
-    for (int i = 0; i < 11; i++)
+    for (int i = 0; i < 10; i++)
         c.command("move east");
 
+    bool goodB = true;
     goodB &= (c.getTom()->getX() == 6);
-    goodB &= (c.getTom()->getY() == 6);
+    goodB &= (c.getTom()->getY() == 5);
 
-    string out = to_string(  (goodA ? 1 : 0) + (goodB ? 1 : 0) );
-
-    if (!goodA)
-            out+=" failed to move south or west.";
-
-    if (!goodB)
-            out+=" rocks did not block tom to south or west.";
-
-    return out;
+    return (goodA ? 1 : 0) + (goodB ? 1 : 0);
 }
 
-string test2()
+int test2()
 {
-    bool goodA = true, goodB = true, caught_error = false;
-
-    int i, j;
+    bool goodA = true, goodB = true;
 
     try {
 
-        for (i = 5; i < 20; i+=3)
-            for (j = 5; j < 30; j+=2) {
+        for (int i = 5; i < 20; i+=2)
+            for (int j = 5; j < 27; j+=3) {
                 Cave c(i,j);
 
                 goodA &= c.getWidth() == i;
@@ -122,47 +81,21 @@ string test2()
             }
 
     }
-    catch (...) // all errors (including logic_error) fall through here
+    catch (...) // an errors (including logic_error) fall through here
     {
         goodA = goodB = false;
-        caught_error = true;
     }
 
-    string out = to_string ( (goodA ? 1 : 0) + (goodB ? 1 : 0) );
-
-    if (!goodA)
-        out += " failed to set width/height variable in cave.";
-
-    if (!goodB)
-        out += " failed to place blocking rocks on resized caves.";
-
-    if ( caught_error )
-        out += " caught an error at " + to_string(i) +"," + to_string(j) +".";
-
-    return out;
+    return (goodA ? 1 : 0) + (goodB ? 1 : 0);
 }
 
-//void* operator new(std::size_t sz) {
-//    void *ptr = std::malloc(sz);
-//    if (ptr)
-//        return ptr;
-//    else
-//        throw std::bad_alloc{};
-//}
-
-//void operator delete(void* ptr) noexcept
-//{
-//    std::free(ptr);
-//}
-
-string test3()
+int test3()
 {
 
     Location::count = 0; // reset the counters in location and thing
     Thing::count = 0;
 
-    bool goodA = true, goodB = true;
-
+    bool goodA = true;
     {
         int x = 8, y= 8;
 
@@ -174,21 +107,7 @@ string test3()
     goodA &= Location::count == 0;
     goodA &= Thing::count == 0;
 
-    string out = to_string ( (goodA ? 1 : 0)  + (goodB ? 1 : 0) );
-
-    if (!goodA) {
-        out += " Location/thing count not 0.";
-
-        if (Thing::count != 0)
-             out+= (" thing count "+ to_string ( Thing::count) +".");
-        if (Location::count != 0)
-             out+= (" location count was "+ to_string ( Thing::count) + ".");
-    }
-
-    if (!goodB)
-        out += (" number of new's did not match number of deletes.");//fixme
-
-    return out;
+    return goodA ? 2 : 0;
 }
 
 void test4CheckPointers(Cave *a, Cave &b, bool& goodA)
@@ -196,6 +115,24 @@ void test4CheckPointers(Cave *a, Cave &b, bool& goodA)
     goodA &= b.getMap() != a -> getMap(); // check that we created a new map
     goodA &= b.getMap()[0][0] != a -> getMap()[0][0]; // has the vector in Location been copied?
     goodA &= b.getMap()[0][0]->getThings()->at(0) != a -> getMap()[0][0]->getThings()->at(0); // has the Rock been copied
+}
+
+int test4() {
+
+    bool goodA = true, goodB = true;
+
+    Cave *a = new Cave(8, 8); // so we don't destroy any (accidently) shallow copied copies twice
+    Cave b(*a);
+
+    test4CheckPointers(a, b, goodA);
+
+    Cave *c = new Cave(8,8);
+    Cave d(8,8);
+    d = *c;
+
+    test4CheckPointers(c, d, goodB);
+
+    return (goodA ? 1 : 0) + (goodB ? 1 : 0);
 }
 
 bool hasCoin (Cave &c, int x, int y) {
@@ -216,65 +153,17 @@ bool hasMushroom (Cave &c, int x, int y) {
     return false;
 }
 
-string test4() {
-
-    bool goodA = true, goodB = true;
-
-    Cave *a = new Cave(8, 8); // so we don't destroy any (accidently) shallow copied copies twice
-
-    a->getTom()->setLocation(a, 1, 1);
-    a->command("place mushroom");
-
-    Cave b(*a);
-
-    test4CheckPointers(a, b, goodA);
-    bool construtorPointer = goodA;
-    bool constructorMushTest = hasMushroom(b, 1, 1);
-    goodA &= constructorMushTest;
-
-
-    Cave *c = new Cave(8,8);
-
-    c->getTom()->setLocation(a, 2, 2);
-    c->command("place mushroom");
-
-    Cave d(8,8);
-    d = *c;
-
-    test4CheckPointers(c, d, goodB);
-    bool operatorPointer = goodB;
-    bool operatorMushTest = hasMushroom(d, 2, 2);
-    goodB &= operatorMushTest;
-
-    string out = to_string ( (goodA ? 1 : 0) + (goodB ? 1 : 0) );
-
-    if (!construtorPointer)
-        out += " copy constructor failed to deep copy.";
-
-    if (!constructorMushTest)
-        out += " copy constructor failed to copy a placed mushroom.";
-
-    if (!operatorPointer)
-        out += " copy asignment operator failed to deep copy.";
-
-    if (!operatorMushTest)
-        out += " copy asignment operator failed to copy a placed mushroom.";
-
-    return out;
-}
-
-
-string test5() {
+int test5() {
 
     bool goodA = true, goodB = true;
 
     Cave c(8,8);
-    c.getTom()->setLocation(&c, 4, 4);
-    c.command("throw mushroom east");
-    goodA &= hasMushroom(c, 5,4);
+    c.getTom()->setLocation(&c, 5, 5);
+    c.command("throw coin north");
+    goodA &= hasCoin(c, 5,4);
 
-    c.command("throw coin south");
-    goodA &= hasCoin(c, 4,5);
+    c.command("throw coin east");
+    goodA &= hasCoin(c, 6,5);
 
     c.getTom()->setLocation(&c, 6,6);
 
@@ -285,15 +174,7 @@ string test5() {
     goodB &= !hasCoin(c, 7,6); // can't throw - rock
     goodB &= goodA; // no marks for rock-blocking if throwing didn't work
 
-    string out = to_string ( (goodA ? 1 : 0) + (goodB ? 1 : 0) );
-
-    if (!goodA)
-        out += " failed to throw objects.";
-
-    if (goodA && !goodB)
-        out += " thrown objects were not blocked by rocks.";
-
-    return out;
+    return (goodA ? 1 : 0) + (goodB ? 1 : 0);
 }
 
 
@@ -318,12 +199,13 @@ int countBombs(Cave *c)
     return count;
 }
 
-string test6()
+int test6()
 {
 
     bool goodA = true, goodB = true, goodC = true;
 
     Cave c(8,8);
+
 
     goodA &= countBombs(&c) == 0;
 
@@ -347,39 +229,18 @@ string test6()
 
     goodB &= countBombs(&c) == 6;
 
-    c.getTom()->setLocation(&c,5,5);
+    c.getTom()->setLocation(&c,5,4);
     c.command("explode");
     goodB &= countBombs(&c) == 1;
 
-    bool cA = true, cB = true;
-
-    cA &= !c.getMap()[7][5]->isBlocking(); // a bomb inside the rock should destroy the rock
-    cA &=  c.getMap()[7][6]->isBlocking(); // other rocks remain untouched
-
-    goodC &= cA;
-
-    cB &= !hasMushroom (c, 5,5); // mushroom should be destroyed
-    cB &=  hasMushroom (c, 4,5); // mushroom should not explode
-
-    goodC &= cB;
+    goodC &= !c.getMap()[7][5]->isBlocking(); // a bomb inside the rock should destroy the rock
+    goodC &=  c.getMap()[7][6]->isBlocking(); // other rocks remain untouched
+    goodC &= !hasMushroom (c, 5,5); // mushroom should be destroyed
+    goodC &=  hasMushroom (c, 4,5); // mushroom should not explode
 
     c.command("place bomb");
 
-    string out = to_string ( (goodA ? 1 : 0) + (goodB ? 3 : 0) + (goodC ? 1 : 0) );
-
-    if (!goodA)
-        out += " failed to place bombs.";
-
-    if (!goodB)
-        out += " failed to detonate correct number of bombs.";
-
-    if (!cA)
-        out += " bombs failed to interact with rocks correctly.";
-
-    if (!cB)
-        out += " bombs failed to interact with mushroom correctly.";
-
-    return out;
+    return (goodA ? 1 : 0) + (goodB ? 3 : 0) + (goodC ? 1 : 0);
 }
 
 bool isEmpty(const string& file)  { // https://stackoverflow.com/questions/2424138/portable-way-to-get-file-size-in-c-c
@@ -394,25 +255,8 @@ bool endsWith(string const & value, string const & ending)
     return equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
-string runTest(int test)
-{
-    if (test == 1)
-        return test1();
-    if (test == 2)
-        return test2();
-    if (test == 3)
-        return test3();
-    if (test == 4)
-        return test4();
-    if (test == 5)
-        return test5();
-    if (test == 6)
-        return test6();
-    return "~";
-}
 
-
-void test()
+ test()
 {
     cerr.setstate(ios_base::failbit); // no error output while testing please!
 
@@ -420,7 +264,7 @@ void test()
     string folder;
     getline(cin, folder); // comment out this line to test quickly
 
-    stringstream patch;
+    stringstream buffer;
     string username = "";
 
     if (folder.length() > 0) {
@@ -447,8 +291,8 @@ void test()
                     ifstream file(fileName );
                     stringstream tmp;
 
-                    patch << "~~~~~~"<<name<<"~~~~~~\n";
-                    patch << file.rdbuf();
+                    buffer << "~~~~~~"<<name<<"~~~~~~\n";
+                    buffer << file.rdbuf();
                 }
             }
             closedir(dir);
@@ -461,7 +305,7 @@ void test()
 
     stringstream testResults;
 
-    testResults << "test results" << endl;  // fixme: separate patch and test
+    testResults << "test results" << endl;
     testResults << "1. " << test1() << endl;
     testResults << "2. " << test2() << endl;
     testResults << "3. " << test3() << endl;
@@ -476,7 +320,7 @@ void test()
         outfile.open(folder+"/"+username, ios::out | ios::trunc );
         outfile << "******" << username << "******\n";
         outfile << testResults.str();
-        outfile << patch.str();
+        outfile << buffer.str();
         outfile.close();
     }
 }

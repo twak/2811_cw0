@@ -16,45 +16,14 @@
 
 using namespace std;
 
-int main3(int argc, char** argv)
+int main(int argc, char** argv)
 {
     cerr.setstate(ios_base::failbit);
     cout.setstate(ios_base::failbit);
 
     std::cout.clear();
-
+      
     cout << runTest(stoi(argv[1])) << endl;
-
+    
     return 0;
-}
-
-int main2(int argc, char** argv)
-{
-    int width = 8, height = 8; // provided code only works for these values(!)
-
-    if (argc == 3)
-    {
-        width  = stoi (argv[1]);
-        height = stoi (argv[2]);
-    }
-
-    if (argc != 2)
-    {
-
-        Cave c(width, height);
-
-        string input;
-        while (true) {
-
-            c.show();
-
-            cout << ">";
-            getline(cin, input);
-
-            if (input.compare("exit") == 0)
-                break;
-            c.command(input);
-        }
-    }
-    else test();
 }
