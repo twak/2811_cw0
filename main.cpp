@@ -12,13 +12,23 @@
 #include <iostream>
 
 #include "cave.h"
-#include "rock.h"
-#include "test.cpp"
+#include "grade_files/test.cpp"
 
 using namespace std;
 
+int main3(int argc, char** argv)
+{
+    cerr.setstate(ios_base::failbit);
+    cout.setstate(ios_base::failbit);
 
-int main(int argc, char** argv)
+    std::cout.clear();
+
+    cout << runTest(stoi(argv[1])) << endl;
+
+    return 0;
+}
+
+int main2(int argc, char** argv)
 {
     int width = 8, height = 8; // provided code only works for these values(!)
 
