@@ -100,7 +100,7 @@ void readClaimed (string& dir, string& username, ofstream& csv) {
         smatch m;
         if ( regex_search(fileStr, m, regex( to_string(i+1)+ "\\. ([0-9])"))) {
             claimed[i] = stoi(m[1].str());
-            cout << "claimed " << to_string(i) << "/ " + m[1].str() << endl;
+            cout << "claimed " << to_string(i+1) << "/ " + m[1].str() << endl;
             csv <<  m[1].str() << ",";
         }
         else
@@ -191,25 +191,38 @@ string unpatch (const string& dir, const string& username, const string& outdir)
     outfile -> close();
 }
 
+string toWin(string nix) {
+    std::replace(nix.begin(), nix.end(), '/', '\\');
+    return nix;
+}
+
 bool build (const string& dir, const string& thisFile, ofstream& results) {
 
     // copy files that should not be changed
 
     #if defined(_WIN32)
-    exec ("copy " + thisFile+"/grade_files/* " + dir );
+    exec ("copy /y \"" + toWin ( thisFile)+"\\grade_files\\*\" \"" + toWin(dir)+"\"" );
     #else
     exec ("cp " + thisFile+"/grade_files/* " + dir );
     #endif
 
     // build
-    #if defined(_WIN32)
+//    #if defined(_WIN32)
     cout << exec("qmake -o "+dir+"/Makefile "+dir+"/CavePlusPlus.pro" )->output;
-    #else
-    cout << exec("qmake -o "+dir+"/Makefile "+dir+"/CavePlusPlus.pro" )->output;
-    #endif
+//    #else
+//    cout << exec("qmake -o "+dir+"/Makefile "+dir+"/CavePlusPlus.pro" )->output;
+//    #endif
 
     cout << endl;
-    rezult* br = exec("make -C "+dir );
+
+    #if defined(_WIN32)
+    rezult* br = exec("mingw32-make.exe -C "+toWin(dir) );
+    #else
+    rezult* br = exec("make -C "+toWin(dir) );
+    #endif
+
+
+
     cout << br->output;
     cout << endl;
 
@@ -234,7 +247,12 @@ void test (string& dir, ofstream& results) {
         string bestString;
 
         for (int c = 0; c< tries; c++) {
+
+#if defined(_WIN32)
+            rezult* res = exec( (toWin(dir)+"\\release\\CavePlusPlus "+ to_string(i) ).c_str());
+#else
             rezult* res = exec( (dir+"/CavePlusPlus "+ to_string(i) ).c_str());
+#endif
 
             if (res->output[0] != '\0' && res->code == 0) {
                 int score = res->output[0] - '0';

@@ -14,6 +14,7 @@
 #include<iostream>
 #include<string>
 #include <dirent.h> // this might be tricky, but mostly there for gnu compilers.
+#include <set>
 
 #include "cave.h"
 #include "coin.h"
@@ -137,23 +138,33 @@ string test2()
         out += " failed to place blocking rocks on resized caves.";
 
     if ( caught_error )
-        out += " caught an error at " + to_string(i) +"," + to_string(j) +".";
+        out += " caught an error at " + to_string(i) +" : " + to_string(j) +".";
 
     return out;
 }
 
-//void* operator new(std::size_t sz) {
-//    void *ptr = std::malloc(sz);
-//    if (ptr)
-//        return ptr;
-//    else
-//        throw std::bad_alloc{};
-//}
+std::set<void*>* allocated;
 
-//void operator delete(void* ptr) noexcept
-//{
-//    std::free(ptr);
-//}
+void* operator new(std::size_t sz) {
+    void *ptr = std::malloc(sz);
+    if (ptr) {
+
+        if (allocated)
+            allocated->insert(ptr);
+
+        return ptr;
+    }
+    else
+        throw std::bad_alloc{};
+}
+
+void operator delete(void* ptr) noexcept
+{
+    if (allocated)
+        allocated -> erase(ptr);
+
+    std::free(ptr);
+}
 
 string test3()
 {
@@ -166,6 +177,8 @@ string test3()
     {
         int x = 8, y= 8;
 
+        allocated = new std::set<void*>();
+
         Cave c(x, y);
 
         goodA &= Location::count == x*y;
@@ -173,6 +186,9 @@ string test3()
 
     goodA &= Location::count == 0;
     goodA &= Thing::count == 0;
+
+    goodB = allocated->size() == 0;
+    allocated = NULL;
 
     string out = to_string ( (goodA ? 1 : 0)  + (goodB ? 1 : 0) );
 
