@@ -17,6 +17,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#if defined(_WIN32)
+#include <direct.h>
+#endif
+
 using namespace std;
 
 class rezult {
@@ -110,6 +114,18 @@ bool endsWith2(string const & value, string const & ending)
     return equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
+void mkdir_ (string sPath) {  // https://stackoverflow.com/a/35109823/708802
+    int nError = 0;
+    #if defined(_WIN32)
+      nError = _mkdir(sPath.c_str()); // can be used on Windows
+    #else
+      nError = mkdir(sPath.c_str(), S_IRWXU); // can be used on non-Windows
+    #endif
+    if (nError != 0) {
+      cout << "error creating directory "<< sPath <<". quitting.";
+      exit (-2);
+    }
+}
 
 string unpatch (const string& dir, const string& username, const string& outdir) {
 
@@ -126,7 +142,7 @@ string unpatch (const string& dir, const string& username, const string& outdir)
 //    string* username = new string ( fileStr.substr(6, fileStr.find(".patch***")-6) );
     cout << username << endl;
 
-    mkdir( string ( outdir+"/"+username ).c_str(), 0777 );
+    mkdir_( string ( outdir+"/"+username ).c_str() );
 
     std::regex rgx("~~~~~~([a-zA-Z0-9\\.]+?)~~~~~~");
 
@@ -178,10 +194,20 @@ string unpatch (const string& dir, const string& username, const string& outdir)
 bool build (const string& dir, const string& thisFile, ofstream& results) {
 
     // copy files that should not be changed
+
+    #if defined(_WIN32)
+    exec ("copy " + thisFile+"/grade_files/* " + dir );
+    #else
     exec ("cp " + thisFile+"/grade_files/* " + dir );
+    #endif
 
     // build
+    #if defined(_WIN32)
     cout << exec("qmake -o "+dir+"/Makefile "+dir+"/CavePlusPlus.pro" )->output;
+    #else
+    cout << exec("qmake -o "+dir+"/Makefile "+dir+"/CavePlusPlus.pro" )->output;
+    #endif
+
     cout << endl;
     rezult* br = exec("make -C "+dir );
     cout << br->output;
@@ -272,9 +298,13 @@ void testAll()
 {
     ofstream resultsfile;
 
-    resultsfile.open( "/home/twak/Downloads/out.csv", ios::out | ios::trunc ); // location of final grades
-    const string thisfile = "/home/twak/code/2811_cw0"; // directory of this unpatch.cpp file
-    const string dir = "/home/twak/Downloads/out"; // where should the student's files be executed
+//    resultsfile.open( "/home/twak/Downloads/out.csv", ios::out | ios::trunc ); // location of final grades
+//    const string thisfile = "/home/twak/code/2811_cw0"; // directory of this unpatch.cpp file
+//    const string dir = "/home/twak/Downloads/out"; // where should the student's files be executed
+
+    resultsfile.open( "C:/Users/twak/Downloads/unpatched_all_on_time/out.csv", ios::out | ios::trunc ); // location of final grades
+    const string thisfile = "C:/Users/twak/Documents/comp2811_20_lectures/courseworks/2811_cw0"; // directory of this unpatch.cpp file
+    const string dir = "C:/Users/twak/Downloads/unpatched_all_on_time/test"; // where should the student's files be executed
 
     if (auto submissionFolder = opendir(dir.c_str())) {
         while (auto f = readdir(submissionFolder)) {

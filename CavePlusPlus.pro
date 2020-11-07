@@ -12,7 +12,9 @@ SOURCES += \
         cave.cpp \
         location.cpp \
         main.cpp \
-    unpatch.cpp
+        move.cpp \
+        place.cpp \
+        unpatch.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
