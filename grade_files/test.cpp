@@ -143,14 +143,20 @@ string test2()
     return out;
 }
 
+
 std::set<void*>* allocated;
+bool top_level = true;
 
 void* operator new(std::size_t sz) {
     void *ptr = std::malloc(sz);
     if (ptr) {
 
-        if (allocated)
+
+        if (allocated && top_level) {
+            top_level = false;
             allocated->insert(ptr);
+            top_level = true;
+        }
 
         return ptr;
     }
@@ -166,6 +172,31 @@ void operator delete(void* ptr) noexcept
     std::free(ptr);
 }
 
+void* operator new[](std::size_t sz) {
+    void *ptr = std::malloc(sz);
+    if (ptr) {
+
+
+        if (allocated && top_level) {
+            top_level = false;
+            allocated->insert(ptr);
+            top_level = true;
+        }
+
+        return ptr;
+    }
+    else
+        throw std::bad_alloc{};
+}
+
+void operator delete[](void* ptr) noexcept
+{
+    if (allocated)
+        allocated -> erase(ptr);
+
+    std::free(ptr);
+}
+
 string test3()
 {
 
@@ -173,6 +204,7 @@ string test3()
     Thing::count = 0;
 
     bool goodA = true, goodB = true;
+    int news = 0, deletes = 0;
 
     {
         int x = 8, y= 8;
@@ -181,13 +213,19 @@ string test3()
 
         Cave c(x, y);
 
+        news = allocated->size();
+
         goodA &= Location::count == x*y;
     }
 
     goodA &= Location::count == 0;
     goodA &= Thing::count == 0;
 
-    goodB = allocated->size() == 0;
+    goodB   = allocated->size() == 0;
+
+    deletes = allocated->size();
+
+    delete(allocated);
     allocated = NULL;
 
     string out = to_string ( (goodA ? 1 : 0)  + (goodB ? 1 : 0) );
@@ -202,10 +240,11 @@ string test3()
     }
 
     if (!goodB)
-        out += (" number of new's did not match number of deletes.");
+        out += (" number of new's did not match number of deletes ("+to_string(news)+" vs "+to_string(news-deletes)+").");
 
     return out;
 }
+
 
 void test4CheckPointers(Cave *a, Cave &b, bool& goodA)
 {
