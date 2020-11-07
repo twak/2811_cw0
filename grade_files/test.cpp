@@ -202,7 +202,7 @@ string test3()
     }
 
     if (!goodB)
-        out += (" number of new's did not match number of deletes.");//fixme
+        out += (" number of new's did not match number of deletes.");
 
     return out;
 }
