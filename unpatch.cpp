@@ -207,12 +207,7 @@ bool build (const string& dir, const string& thisFile, ofstream& results) {
     #endif
 
     // build
-//    #if defined(_WIN32)
     cout << exec("qmake -o "+dir+"/Makefile "+dir+"/CavePlusPlus.pro" )->output;
-//    #else
-//    cout << exec("qmake -o "+dir+"/Makefile "+dir+"/CavePlusPlus.pro" )->output;
-//    #endif
-
     cout << endl;
 
     #if defined(_WIN32)
@@ -220,8 +215,6 @@ bool build (const string& dir, const string& thisFile, ofstream& results) {
     #else
     rezult* br = exec("make -C "+toWin(dir) );
     #endif
-
-
 
     cout << br->output;
     cout << endl;
@@ -320,9 +313,9 @@ void testAll()
 //    const string thisfile = "/home/twak/code/2811_cw0"; // directory of this unpatch.cpp file
 //    const string dir = "/home/twak/Downloads/out"; // where should the student's files be executed
 
-    resultsfile.open( "C:/Users/twak/Downloads/unpatched_all_on_time/out.csv", ios::out | ios::trunc ); // location of final grades
+    resultsfile.open( "C:/Users/twak/Downloads/unpatched_all_on_time/out_problematic.csv", ios::out | ios::trunc ); // location of final grades
     const string thisfile = "C:/Users/twak/Documents/comp2811_20_lectures/courseworks/2811_cw0"; // directory of this unpatch.cpp file
-    const string dir = "C:/Users/twak/Downloads/unpatched_all_on_time/test"; // where should the student's files be executed
+    const string dir = "C:/Users/twak/Downloads/unpatched_all_on_time/problematic"; // where should the student's files be executed
 
     if (auto submissionFolder = opendir(dir.c_str())) {
         while (auto f = readdir(submissionFolder)) {
