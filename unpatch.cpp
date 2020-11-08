@@ -275,10 +275,11 @@ void test (string& dir, ofstream& results) {
 
 void unpatchAll()
 {
+    // where are the student's patch files? (all in one directory from minerva).
+    string dir = "/home/twak/Downloads/cw1_submissions/gradebook_202021_32871_COMP2811_Coursework2013a20Cave20Plus20Plus_2020-10-28-18-38-24";
+    // where should the student's files be unpatched to?
+    const string outdir = "/home/twak/Downloads/out";
 
-    string dir = "/home/twak/Downloads/cw1_submissions/gradebook_202021_32871_COMP2811_Coursework2013a20Cave20Plus20Plus_2020-10-28-18-38-24"; // where are the student's patch files? (all in one directory).
-//    const string dir = "/home/twak/Downloads/cw1_test"; // where are the student's patch files? (all in one directory).
-    const string outdir = "/home/twak/Downloads/out"; // where should the student's files be executed
     const std::regex usrReg("Plus\\_([0-9a-z]+)\\_attempt");
 
     if (auto submissionFolder = opendir(dir.c_str())) {
@@ -309,13 +310,12 @@ void testAll()
 {
     ofstream resultsfile;
 
-//    resultsfile.open( "/home/twak/Downloads/out.csv", ios::out | ios::trunc ); // location of final grades
-//    const string thisfile = "/home/twak/code/2811_cw0"; // directory of this unpatch.cpp file
-//    const string dir = "/home/twak/Downloads/out"; // where should the student's files be executed
-
-    resultsfile.open( "C:/Users/twak/Downloads/unpatched_all_on_time/out_problematic.csv", ios::out | ios::trunc ); // location of final grades
-    const string thisfile = "C:/Users/twak/Documents/comp2811_20_lectures/courseworks/2811_cw0"; // directory of this unpatch.cpp file
-    const string dir = "C:/Users/twak/Downloads/unpatched_all_on_time/problematic"; // where should the student's files be executed
+    // location to write final grades:
+    resultsfile.open( "C:/Users/twak/Downloads/unpatched_all_on_time/out_problematic.csv", ios::out | ios::trunc );
+    // directory of this unpatch.cpp file:
+    const string thisfile = "C:/Users/twak/Documents/comp2811_20_lectures/courseworks/2811_cw0";
+    // location of the unpatched submissions:
+    const string dir = "C:/Users/twak/Downloads/unpatched_all_on_time/problematic";
 
     if (auto submissionFolder = opendir(dir.c_str())) {
         while (auto f = readdir(submissionFolder)) {
@@ -343,7 +343,7 @@ void testAll()
 
 int main(int argc, char** argv)
 {
-//    unpatchAll(); // extract all the patch files
+    unpatchAll(); // extract all the patch files
                    // (add any student's submissions who didn't use the patch format here)
     testAll();    // build and test all files
 }
