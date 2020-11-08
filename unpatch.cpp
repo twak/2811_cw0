@@ -213,7 +213,7 @@ bool build (const string& dir, const string& thisFile, ofstream& results) {
     #if defined(_WIN32)
     rezult* br = exec("mingw32-make.exe -C "+toWin(dir) );
     #else
-    rezult* br = exec("make -C "+toWin(dir) );
+    rezult* br = exec("make -C "+dir );
     #endif
 
     cout << br->output;
@@ -311,11 +311,11 @@ void testAll()
     ofstream resultsfile;
 
     // location to write final grades:
-    resultsfile.open( "C:/Users/twak/Downloads/unpatched_all_on_time/out_problematic.csv", ios::out | ios::trunc );
+    resultsfile.open( "/home/twak/Downloads/unpatched_all_on_time/unpatched_all_on_time/out.csv", ios::out | ios::trunc );
     // directory of this unpatch.cpp file:
-    const string thisfile = "C:/Users/twak/Documents/comp2811_20_lectures/courseworks/2811_cw0";
+    const string thisfile = "/home/twak/code/2811_cw0";
     // location of the unpatched submissions:
-    const string dir = "C:/Users/twak/Downloads/unpatched_all_on_time/problematic";
+    const string dir = "/home/twak/Downloads/unpatched_all_on_time/unpatched_all_on_time/out";
 
     if (auto submissionFolder = opendir(dir.c_str())) {
         while (auto f = readdir(submissionFolder)) {
@@ -343,7 +343,7 @@ void testAll()
 
 int main(int argc, char** argv)
 {
-    unpatchAll(); // extract all the patch files
+//    unpatchAll(); // extract all the patch files
                    // (add any student's submissions who didn't use the patch format here)
     testAll();    // build and test all files
 }
