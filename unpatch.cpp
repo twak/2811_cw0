@@ -276,9 +276,9 @@ void test (string& dir, ofstream& results) {
 void unpatchAll()
 {
     // where are the student's patch files? (all in one directory from minerva).
-    string dir = "/home/twak/Downloads/cw1_submissions/gradebook_202021_32871_COMP2811_Coursework2013a20Cave20Plus20Plus_2020-10-28-18-38-24";
+    string dir = "C:/Users/twak/Documents/comp2811_20_lectures/cw1_submissions/gradebook_202021_32871_COMP2811_Coursework2013a20Cave20Plus20Plus_2020-10-28-18-38-24";
     // where should the student's files be unpatched to?
-    const string outdir = "/home/twak/Downloads/out";
+    const string outdir = "C:\\Users\\twak\\Downloads\\out";
 
     const std::regex usrReg("Plus\\_([0-9a-z]+)\\_attempt");
 
@@ -311,11 +311,11 @@ void testAll()
     ofstream resultsfile;
 
     // location to write final grades:
-    resultsfile.open( "/home/twak/Downloads/unpatched_all_on_time/unpatched_all_on_time/out.csv", ios::out | ios::trunc );
+    resultsfile.open( "C:\\Users\\twak\\Downloads\\foo.csv", ios::out | ios::trunc );
     // directory of this unpatch.cpp file:
-    const string thisfile = "/home/twak/code/2811_cw0";
+    const string thisfile = "C:\\Users\\twak\\Documents\\comp2811_20_lectures\\courseworks\\2811_cw0";
     // location of the unpatched submissions:
-    const string dir = "/home/twak/Downloads/unpatched_all_on_time/unpatched_all_on_time/out";
+    const string dir = "C:\\Users\\twak\\Downloads\\out";
 
     if (auto submissionFolder = opendir(dir.c_str())) {
         while (auto f = readdir(submissionFolder)) {
@@ -329,8 +329,9 @@ void testAll()
             cout << "*** starting test " << username << endl;
 
             readClaimed(userDir, username, resultsfile);
-            if (build(userDir, thisfile, resultsfile))
-                test(userDir, resultsfile);
+            build(userDir, thisfile, resultsfile);
+//            if (build(userDir, thisfile, resultsfile))
+//                test(userDir, resultsfile);
 
             resultsfile << endl;
 
