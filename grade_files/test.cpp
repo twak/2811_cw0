@@ -290,7 +290,7 @@ string test4() {
 
     Cave *c = new Cave(8,8);
 
-    c->getTom()->setLocation(a, 2, 2);
+    c->getTom()->setLocation(c, 2, 2);
     c->command("place mushroom");
 
     Cave d(8,8);
