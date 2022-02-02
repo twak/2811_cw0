@@ -1,6 +1,6 @@
-/***
- * Do not change this file
- */
+//
+// Do not change this file
+//
 
 #include "tom.h"
 #include "cave.h"
