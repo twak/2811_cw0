@@ -7,14 +7,12 @@ CONFIG += c++11 console
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        grade_files/test.cpp \
         tom.cpp \
         cave.cpp \
         location.cpp \
         main.cpp \
         move.cpp \
-        place.cpp \
-        unpatch.cpp
+        place.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

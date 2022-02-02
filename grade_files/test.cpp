@@ -543,3 +543,15 @@ void test()
         outfile.close();
     }
 }
+
+int main3(int argc, char** argv)
+{
+    cerr.setstate(ios_base::failbit);
+    cout.setstate(ios_base::failbit);
+
+    std::cout.clear();
+
+    cout << runTest(stoi(argv[1])) << endl;
+
+    return 0;
+}

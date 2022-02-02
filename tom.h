@@ -1,6 +1,6 @@
-/***
- * Do not change this file
- */
+//
+// Do not change this file
+//
 
 #ifndef TOM_H
 #define TOM_H

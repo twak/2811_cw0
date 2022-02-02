@@ -57,3 +57,6 @@ compile_commands.json
 
 *_qmlcache.qrc
 >>>>>>> f0672e906105d3de278c46713d06b8864c8e677d
+CavePlusPlus.pro.user
+*.user
+*.user

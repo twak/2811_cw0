@@ -26,8 +26,7 @@ using namespace std;
 int Location::count;
 int Thing::count;
 
-int test1()
-{
+int test1() {
 
     Cave c(8,8);
     c.getTom()->setLocation(&c, 5, 5);
@@ -58,8 +57,8 @@ int test1()
     return (goodA ? 1 : 0) + (goodB ? 1 : 0);
 }
 
-int test2()
-{
+int test2() {
+
     bool goodA = true, goodB = true;
 
     try {
@@ -88,8 +87,7 @@ int test2()
     return (goodA ? 1 : 0) + (goodB ? 1 : 0);
 }
 
-int test3()
-{
+int test3() {
 
     Location::count = 0; // reset the counters in location and thing
     Thing::count = 0;
@@ -109,8 +107,8 @@ int test3()
     return goodA ? 2 : 0;
 }
 
-void test4CheckPointers(Cave *a, Cave &b, bool& goodA)
-{
+void test4CheckPointers(Cave *a, Cave &b, bool& goodA) {
+
     goodA &= b.getMap() != a -> getMap(); // check that we created a new map
     goodA &= b.getMap()[0][0] != a -> getMap()[0][0]; // has the vector in Location been copied?
     goodA &= b.getMap()[0][0]->getThings()->at(0) != a -> getMap()[0][0]->getThings()->at(0); // has the Rock been copied
@@ -177,8 +175,7 @@ int test5() {
 }
 
 
-bool hasBomb (Cave &c, int x, int y)
-{
+bool hasBomb (Cave &c, int x, int y) {
 
     for (auto t : *c.getMap()[x][y]->getThings())
         if ( t->getName().compare("bomb") == 0 )
@@ -187,8 +184,7 @@ bool hasBomb (Cave &c, int x, int y)
     return false;
 }
 
-int countBombs(Cave *c)
-{
+int countBombs(Cave *c) {
     int count = 0;
     for (int x = 0; x < c->getWidth(); x++)
         for (int y = 0; y < c->getHeight(); y++)
@@ -198,8 +194,7 @@ int countBombs(Cave *c)
     return count;
 }
 
-int test6()
-{
+int test6() {
 
     bool goodA = true, goodB = true, goodC = true;
 
@@ -242,23 +237,24 @@ int test6()
     return (goodA ? 1 : 0) + (goodB ? 3 : 0) + (goodC ? 1 : 0);
 }
 
-bool endsWith(string const & value, string const & ending)
-{
+bool endsWith(string const & value, string const & ending) {
+
     if (ending.size() > value.size()) return false;
     return equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
 bool isEmpty(const string& file)  { // https://stackoverflow.com/questions/2424138/portable-way-to-get-file-size-in-c-c
+
     ifstream ifile(file);
     ifile.seekg(0, ios_base::end);
     return ifile.tellg() == 0;
 }
 
-void test()
-{
+void test() {
+
     cerr.setstate(ios_base::failbit); // no error output while testing please!
 
-    cout << "Enter folder containing all source files, or enter to only run tests:";
+    cout << "Enter folder containing all cpp source files (or enter to only run tests):";
     string folder;
     getline(cin, folder); // comment out this line to test quickly
 

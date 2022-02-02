@@ -2,12 +2,14 @@
 #include <fstream>
 #include <stdexcept>
 #include <sstream>
-#include<iostream>
-#include<string>
-#include<regex>
-#include<string>
+#include <iostream>
+#include <string>
+#include <regex>
+#include <string>
 #include <dirent.h> // this might be tricky, but mostly there for gnu compilers.
 #include <iterator>
+#include <errno.h>
+
 
 #include "cave.h"
 #include "coin.h"
@@ -127,19 +129,19 @@ void mkdir_ (string sPath) {  // https://stackoverflow.com/a/35109823/708802
     }
 }
 
-string unpatch (const string& dir, const string& username, const string& outdir) {
+void unpatch (const string& dir, const string& username, const string& outdir) {
 
     std::ifstream t(dir);
     std::stringstream buffer;
     buffer << t.rdbuf();
+    t.close();
+
     string fileStr = buffer.str();
 
     fileStr.erase(std::remove(fileStr.begin(), fileStr.end(), '\357'), fileStr.end()); // dirty hack to remove BOM...
     fileStr.erase(std::remove(fileStr.begin(), fileStr.end(), '\273'), fileStr.end());
     fileStr.erase(std::remove(fileStr.begin(), fileStr.end(), '\277'), fileStr.end());
 
-
-//    string* username = new string ( fileStr.substr(6, fileStr.find(".patch***")-6) );
     cout << username << endl;
 
     mkdir_( string ( outdir+"/"+username ).c_str() );
@@ -168,15 +170,9 @@ string unpatch (const string& dir, const string& username, const string& outdir)
             startPos = m.position() + m.length();
 
             cout << "extracting " << filename << endl;
-//            cout << m.position() << " " << m.length() << endl;
 
             outfile = new ofstream();
             outfile -> open( outdir+"/"+username+"/"+filename, ios::out | ios::trunc );
-
-//            if (endsWith2 ( filename, ".cpp") || endsWith2 ( filename, ".h")) {
-//                *outfile << "/** unpatched file from " << *username << " **/\n";
-//                *outfile << "/**" + m.str() +" **/";
-//            }
         }
     }
 
@@ -276,9 +272,9 @@ void test (string& dir, ofstream& results) {
 void unpatchAll()
 {
     // where are the student's patch files? (all in one directory from minerva).
-    string dir = "C:/Users/twak/Documents/comp2811_20_lectures/cw1_submissions/gradebook_202021_32871_COMP2811_Coursework2013a20Cave20Plus20Plus_2020-10-28-18-38-24";
+    string dir = "C:\\Users\\twak\\Documents\\teaching_21\\cw1\\lates_1";
     // where should the student's files be unpatched to?
-    const string outdir = "C:\\Users\\twak\\Downloads\\out";
+    const string outdir = "C:\\Users\\twak\\Documents\\teaching_21\\cw1\\lates_1_unpatched";
 
     const std::regex usrReg("Plus\\_([0-9a-z]+)\\_attempt");
 
@@ -288,6 +284,8 @@ void unpatchAll()
             if (!f->d_name || f->d_name[0] == '.')
                 continue;
 
+            cout << f->d_name << endl;
+
             string name = string (f->d_name);
 
             string username = name;
@@ -296,14 +294,21 @@ void unpatchAll()
             if (regex_search(name, m, usrReg))
                 username = m[1].str();
 
+            string dirn = dir + "\\" + name;
+            string username2 = username;
+            string outdir2 = outdir;
+
             if (endsWith2(name, ".patch")) {
 
                 cout << "*** starting unpatch " + username << endl;
-                unpatch(dir+"/"+name, username, outdir);
+                unpatch( dirn, username2, outdir2 );
                 cout << "*** finished unpatch " << username << endl;
             }
          }
-      }
+     }
+    else
+        printf("Oh dear, something went wrong %s\n", strerror(errno));
+
 }
 
 void testAll()
@@ -313,9 +318,9 @@ void testAll()
     // location to write final grades:
     resultsfile.open( "C:\\Users\\twak\\Downloads\\foo.csv", ios::out | ios::trunc );
     // directory of this unpatch.cpp file:
-    const string thisfile = "C:\\Users\\twak\\Documents\\comp2811_20_lectures\\courseworks\\2811_cw0";
+    const string thisfile = "C:\\Users\\twak\\Documents\\GitHub\\2811_cw0";
     // location of the unpatched submissions:
-    const string dir = "C:\\Users\\twak\\Downloads\\out";
+    const string dir = "C:\\Users\\twak\\Documents\\teaching_21\\cw1_swjtu\\unpatched";
 
     if (auto submissionFolder = opendir(dir.c_str())) {
         while (auto f = readdir(submissionFolder)) {
@@ -329,9 +334,9 @@ void testAll()
             cout << "*** starting test " << username << endl;
 
             readClaimed(userDir, username, resultsfile);
-            build(userDir, thisfile, resultsfile);
-//            if (build(userDir, thisfile, resultsfile))
-//                test(userDir, resultsfile);
+//            build(userDir, thisfile, resultsfile);
+            if (build(userDir, thisfile, resultsfile))
+                test(userDir, resultsfile);
 
             resultsfile << endl;
 
@@ -344,7 +349,7 @@ void testAll()
 
 int main(int argc, char** argv)
 {
-//    unpatchAll(); // extract all the patch files
+    unpatchAll(); // extract all the patch files
                    // (add any student's submissions who didn't use the patch format here)
     testAll();    // build and test all files
 }
